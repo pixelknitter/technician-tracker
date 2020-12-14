@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Technician Tracker",
+  "name": "Technician Tracker",
   "icons": [
     {
       "src": "favicon.ico",
