@@ -15,25 +15,25 @@ const convertFeature = (raw: any): Feature => ({
   },
 })
 
-enum PollStatus {
-  idle = "idle",
-  running = "running",
-}
+// enum PollStatus {
+//   idle = "idle",
+//   running = "running",
+// }
 
 const useTechLocationService = () => {
-  const [status, setStatus] = useState<PollStatus>(PollStatus.idle)
+  // const [status, setStatus] = useState<PollStatus>(PollStatus.idle)
   const [result, setResult] = useState<Service<Feature[]>>({
     status: "loading",
   })
   const [pollCount, setPollCount] = useState(0)
 
   // TODO: maybe use this for some user interaction
-  const togglePolling = useCallback(() => {
-    setPollCount(0)
-    setStatus((status) =>
-      status === PollStatus.running ? PollStatus.idle : PollStatus.running
-    )
-  }, [])
+  // const togglePolling = useCallback(() => {
+  //   setPollCount(0)
+  //   setStatus((status) =>
+  //     status === PollStatus.running ? PollStatus.idle : PollStatus.running
+  //   )
+  // }, [])
 
   const getData = useCallback(() => {
     if (pollCount >= data.length) return
