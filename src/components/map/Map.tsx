@@ -1,24 +1,21 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import "./map.css"
 import ReactMapGL, { NavigationControl, Marker } from "react-map-gl"
+import { useToasts } from "react-toast-notifications"
+import { point, distance } from "@turf/turf"
 import { useWindowSize } from "../../hooks"
-import { Feature, Coordinate } from "../../data/types"
+import { Feature, Coordinate, Property } from "../../data/types"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import techMarker, {
   ReactComponent as TechMarker,
 } from "../../assets/technician_icon.svg"
 
 type Props = {
-  data?: Feature[]
-}
-
-enum Unit {
-  kilometer,
-  miles,
-  nauticalMiles,
+  data: Feature[]
 }
 
 const DEFAULT_COORDINATES = { latitude: 37.7577, longitude: -122.4376 }
+const DEFAULT_ALERT_DISTANCE = 304.8 // meters or within 1000ft
 
 const renderTechnicians = (data?: Feature[]): JSX.Element[] | null => {
   if (!data) return null
@@ -54,44 +51,44 @@ const findCenter = (data: Feature[]): Coordinate => {
   return { latitude: centerLat, longitude: centerLong }
 }
 
-// TODO: move to utilities
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const distance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-  unit: Unit
-) => {
-  if (lat1 === lat2 && lon1 === lon2) {
-    return 0
-  } else {
-    var radlat1 = (Math.PI * lat1) / 180
-    var radlat2 = (Math.PI * lat2) / 180
-    var theta = lon1 - lon2
-    var radtheta = (Math.PI * theta) / 180
-    var dist =
-      Math.sin(radlat1) * Math.sin(radlat2) +
-      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta)
-    if (dist > 1) {
-      dist = 1
+type TechReach = { distance: number; techs: Property[] }
+
+/**
+ *
+ * @param data - an array of properties/techs
+ * @param distance - a distance in meters
+ */
+const techsWithinReach = (data: Feature[], reach: number): TechReach[] => {
+  let result: TechReach[] = []
+
+  for (let step = 0; step < data.length; step++) {
+    const tech1 = data[step]
+    for (let innerStep = step + 1; innerStep < data.length; innerStep++) {
+      const tech2 = data[innerStep]
+
+      const coords1 = tech1.geometry.coordinates
+      const coords2 = tech2.geometry.coordinates
+      const distanceBetween = distance(
+        [coords1.latitude, coords1.longitude],
+        [coords2.latitude, coords2.longitude],
+        { units: "meters" }
+      )
+
+      if (distanceBetween <= reach) {
+        result.push({
+          distance: distanceBetween,
+          techs: [tech1.properties, tech2.properties],
+        })
+      }
     }
-    dist = Math.acos(dist)
-    dist = (dist * 180) / Math.PI
-    dist = dist * 60 * 1.1515
-    if (unit === Unit.kilometer) {
-      dist = dist * 1.609344
-    }
-    if (unit === Unit.nauticalMiles) {
-      dist = dist * 0.8684
-    }
-    return dist
   }
+  return result
 }
 
-const Map: React.FC<Props> = ({ data }) => {
+const Map: React.FC<Props> = ({ data = [] }) => {
+  const { addToast } = useToasts()
   const size = useWindowSize(100, 84)
-  const origin = (data && findCenter(data)) || DEFAULT_COORDINATES
+  const origin = useMemo(() => findCenter(data) || DEFAULT_COORDINATES, [data])
   const [viewport, setViewport] = useState({
     width: size.width,
     height: size.height,
@@ -100,6 +97,25 @@ const Map: React.FC<Props> = ({ data }) => {
     bearing: 0,
     zoom: 14, // get a rough size for demo
   })
+
+  // display a toast alert when two techs get with an alert distance
+  useEffect(() => {
+    const nearbyTechs = techsWithinReach(data, DEFAULT_ALERT_DISTANCE)
+    if (nearbyTechs.length > 0) {
+      nearbyTechs.forEach((techReach) => {
+        // FIXME: update the toast instead of simply adding new ones if the tech pairing is the same
+        addToast(
+          `${techReach.techs[0].name} and ${
+            techReach.techs[1].name
+          } are within ${techReach.distance.toFixed(2)} meters!`,
+          {
+            appearance: "info",
+            autoDismiss: true,
+          }
+        )
+      })
+    }
+  }, [data, addToast])
 
   // updates the viewport with window changes
   useEffect(() => {
@@ -120,7 +136,7 @@ const Map: React.FC<Props> = ({ data }) => {
       {...viewport}
       onViewportChange={(viewState) => setViewport(viewState)}
     >
-      {data && renderTechnicians(data)}
+      {renderTechnicians(data)}
       <div style={{ position: "absolute", right: 0 }}>
         <NavigationControl />
       </div>
