@@ -3,9 +3,10 @@ import "./map.css"
 import ReactMapGL, { NavigationControl, Marker } from "react-map-gl"
 import { useWindowSize } from "../../hooks"
 import { Feature, Coordinate } from "../../data/types"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import techMarker, {
   ReactComponent as TechMarker,
-} from "../../assets/tech_location_marker.svg"
+} from "../../assets/technician_icon.svg"
 
 type Props = {
   data?: Feature[]
@@ -54,6 +55,7 @@ const findCenter = (data: Feature[]): Coordinate => {
 }
 
 // TODO: move to utilities
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const distance = (
   lat1: number,
   lon1: number,
