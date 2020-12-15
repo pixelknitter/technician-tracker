@@ -1,6 +1,23 @@
-# Getting Started with Create React App
+# Technician Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This app is meant to represent a React usage of Mapbox GL JS and the ability to alert when technicians get near each other.
+
+## Libraries Used
+
+- [turfjs](https://turfjs.org/docs/#distance) -> for measuring the distance
+- [react-toast-notifications](https://github.com/jossmac/react-toast-notifications) -> for a quick toasting component
+- [react-map-gl](https://visgl.github.io/react-map-gl/) -> for a simplified usage of Mapbox GL JS in React.
+
+## Reflections
+
+I always try to offer some thoughts from the time I spent developing something.
+
+- clean up the hooks
+  - ie: the interval could be set up as a separate hook from the data pull
+- separate concerns of data and view
+  - Map.tsx started to get a bit heavy and I can see some of those elements moved elsewhere
+- inject the JSON in an actual service that would make swapping out embedded JSON and an endpoint
+- keep the formatting of the GeoJSON in the objects. I didn't realize at first that it had a particular format. Only once I integrated turfjs did I recognize I was doing unnecessary conversions.
 
 ## Available Scripts
 
