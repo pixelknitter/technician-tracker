@@ -1,1 +1,6 @@
 export * from "./Coordinate"
+export * from "./Service"
+export * from "./Feature"
+export * from "./Property"
+export * from "./Geometry"
+export * from "./Response"

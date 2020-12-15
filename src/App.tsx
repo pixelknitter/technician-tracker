@@ -1,12 +1,21 @@
 import React from "react"
 import "./App.css"
 import { Map } from "./components"
+import { Loading } from "./components/loading"
+import { useTechLocationService } from "./hooks"
 
 function App() {
+  const service = useTechLocationService()
+  if (service.status === "error") console.error(service.error)
+
   return (
     <div className="App">
       <header className="App-header">Technician Tracker</header>
-      <Map />
+      {service.status === "loading" && <Loading />}
+      {service.status === "error" && (
+        <Loading type={service.status} message={service.error.message} />
+      )}
+      {service.status === "loaded" && <Map data={service.payload} />}
       <footer className="App-footer">
         <a
           className="App-link"

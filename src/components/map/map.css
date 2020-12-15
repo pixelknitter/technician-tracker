@@ -1,1 +1,10 @@
+.Map-tech-icon {
+  width: 4vw;
+  height: 4vh;
+}
 
+.Map-tech-marker {
+  display: flex;
+  flex-direction: row;
+  font-size: calc(10px + 0.5vmin);
+}
