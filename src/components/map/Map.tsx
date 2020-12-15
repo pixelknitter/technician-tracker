@@ -69,8 +69,8 @@ const techsWithinReach = (data: Feature[], reach: number): TechReach[] => {
       const coords1 = tech1.geometry.coordinates
       const coords2 = tech2.geometry.coordinates
       const distanceBetween = distance(
-        [coords1.latitude, coords1.longitude],
-        [coords2.latitude, coords2.longitude],
+        point([coords1.latitude, coords1.longitude]),
+        point([coords2.latitude, coords2.longitude]),
         { units: "meters" }
       )
 
@@ -103,7 +103,7 @@ const Map: React.FC<Props> = ({ data = [] }) => {
     const nearbyTechs = techsWithinReach(data, DEFAULT_ALERT_DISTANCE)
     if (nearbyTechs.length > 0) {
       nearbyTechs.forEach((techReach) => {
-        // FIXME: update the toast instead of simply adding new ones if the tech pairing is the same
+        // FIXME: update the toast instead of simply adding new ones if the tech pairing is the same. TODO: track the toast ID and associate it with the nearbyTechs.
         addToast(
           `${techReach.techs[0].name} and ${
             techReach.techs[1].name

@@ -41,7 +41,6 @@ const useTechLocationService = () => {
     // FIXME: use the Service promise structure for error handling
     const features = data[pollCount].features.map((feature) => {
       const object = convertFeature(feature)
-      console.debug(object)
       return object
     })
 
